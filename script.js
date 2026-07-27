@@ -5,7 +5,11 @@
   const theme = document.querySelector("#theme");
   const size = document.querySelector("#text-size");
   const font = document.querySelector("#text-font");
+  const readerSettings = document.querySelector(".reader-settings");
   const progress = document.querySelector(".reading-progress");
+  const footnoteDialog = document.querySelector("#footnote-dialog");
+  const footnoteDialogTitle = document.querySelector("#footnote-dialog-title");
+  const footnoteDialogBody = document.querySelector(".footnote-dialog-body");
   const tocLinks = [...document.querySelectorAll(".toc a")];
   const sections = tocLinks
     .map((link) => document.getElementById(link.getAttribute("href").slice(1)))
@@ -41,6 +45,12 @@
   font.addEventListener("change", applyReader);
   applyReader();
 
+  document.addEventListener("click", (event) => {
+    if (readerSettings.open && !readerSettings.contains(event.target)) {
+      readerSettings.removeAttribute("open");
+    }
+  });
+
   const updateProgress = () => {
     const rect = article.getBoundingClientRect();
     const travelled = Math.max(0, -rect.top + window.innerHeight * 0.35);
@@ -73,9 +83,30 @@
   document.querySelector(".drawer-scrim").addEventListener("click", closeDrawer);
   tocLinks.forEach((link) => link.addEventListener("click", closeDrawer));
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") closeDrawer();
+    if (event.key === "Escape") {
+      closeDrawer();
+      readerSettings.removeAttribute("open");
+    }
   });
 
-  const words = article.textContent.trim().split(/\s+/).length;
+  document.querySelectorAll(".footnote-ref").forEach((button) => {
+    button.addEventListener("click", () => {
+      const source = document.querySelector(`#fn-${button.dataset.footnote}`);
+      if (!source) return;
+      const content = source.cloneNode(true);
+      content.querySelector(".footnote-backref")?.remove();
+      footnoteDialogTitle.textContent = `Сноска ${button.dataset.footnote}`;
+      footnoteDialogBody.innerHTML = content.innerHTML;
+      footnoteDialog.showModal();
+    });
+  });
+  document.querySelector("[data-close-footnote]").addEventListener("click", () => footnoteDialog.close());
+  footnoteDialog.addEventListener("click", (event) => {
+    if (event.target === footnoteDialog) footnoteDialog.close();
+  });
+
+  const readingCopy = article.cloneNode(true);
+  readingCopy.querySelector(".footnotes")?.remove();
+  const words = readingCopy.textContent.trim().split(/\s+/).length;
   document.querySelector("#reading-time").textContent = `${Math.max(1, Math.round(words / 190))} мин`;
 })();

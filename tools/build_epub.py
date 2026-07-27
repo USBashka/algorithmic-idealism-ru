@@ -18,10 +18,11 @@ INDEX = ROOT / "index.html"
 OUTPUT = ROOT / "downloads" / "algorithmic-idealism-ru.epub"
 BUILD = ROOT / ".epub-build"
 NS = "http://www.w3.org/1999/xhtml"
+EPUB_NS = "http://www.idpf.org/2007/ops"
 
 
 def xhtml_document(title: str, body_nodes: list[etree._Element]) -> bytes:
-    html_node = etree.Element(f"{{{NS}}}html", nsmap={None: NS})
+    html_node = etree.Element(f"{{{NS}}}html", nsmap={None: NS, "epub": EPUB_NS})
     html_node.set("{http://www.w3.org/XML/1998/namespace}lang", "ru")
     head = etree.SubElement(html_node, f"{{{NS}}}head")
     etree.SubElement(head, f"{{{NS}}}meta", charset="utf-8")
@@ -67,6 +68,15 @@ def main() -> None:
         image.attrib.pop("loading", None)
     for element in article.xpath(".//*[@id]"):
         element.set("id", re.sub(r"[^A-Za-z0-9_.:-]", "-", element.get("id")))
+    for button in article.xpath('.//button[contains(concat(" ", normalize-space(@class), " "), " footnote-ref ")]'):
+        footnote_id = button.get("data-footnote", "")
+        link = etree.Element("a", href=f"#fn-{footnote_id}")
+        link.text = "".join(button.itertext())
+        link.set("aria-label", f"Сноска {footnote_id}")
+        link.set(f"{{{EPUB_NS}}}type", "noteref")
+        button.getparent().replace(button, link)
+    for footnote in article.xpath('.//section[contains(concat(" ", normalize-space(@class), " "), " footnotes ")]//li'):
+        footnote.set(f"{{{EPUB_NS}}}type", "footnote")
 
     cover_nodes = [etree.fromstring(etree.tostring(cover))]
     article_nodes = [etree.fromstring(etree.tostring(child)) for child in article]

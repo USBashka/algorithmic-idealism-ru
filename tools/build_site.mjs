@@ -112,18 +112,18 @@ function extractFootnotes(markdown) {
   }
   let clean = kept.join("\n");
   clean = clean.replace(/\[\^([^\]]+)\]/g, (_, id) => (
-    `<sup id="fnref-${id}"><a href="#fn-${id}" aria-label="Сноска ${id}">${id}</a></sup>`
+    `<sup id="fnref-${id}"><button class="footnote-ref" type="button" data-footnote="${id}" aria-label="Открыть сноску ${id}">${id}</button></sup>`
   ));
   const html = definitions.length
     ? `<section class="footnotes" aria-label="Сноски"><h2 id="footnotes">Сноски</h2><ol>${definitions
-        .map(({ id, body }) => `<li id="fn-${id}">${renderMarkdown(body)} <a href="#fnref-${id}" aria-label="Назад">↩</a></li>`)
+        .map(({ id, body }) => `<li id="fn-${id}">${renderMarkdown(body)} <a class="footnote-backref" href="#fnref-${id}" aria-label="Назад">↩</a></li>`)
         .join("")}</ol></section>`
     : "";
   return [clean, html];
 }
 
 function prepareMain(markdown) {
-  markdown = markdown.replace(/^# .+\n+/, "");
+  markdown = markdown.replace(/^\s*# .+\n+/, "");
   markdown = markdown.replace(
     /^## (?:Table of Contents|Оглавление)[\s\S]*?(?=<a id="Section1"><\/a>)/m,
     "",
@@ -140,7 +140,7 @@ function prepareSidebar(markdown) {
   const resourcesRaw = faqStart >= 0 ? markdown.slice(0, faqStart) : "";
   const faqRaw = faqStart >= 0 ? markdown.slice(faqStart).replace(/^## .+\n+/, "") : markdown;
   const resources = resourcesRaw.trim()
-    ? `<div class="resources">${renderMarkdown(resourcesRaw.replace(/^## .+\n+/, ""))}</div>`
+    ? `<details class="resources"><summary>Материалы и ссылки</summary><div>${renderMarkdown(resourcesRaw.replace(/^## .+\n+/, ""))}</div></details>`
     : "";
   const questions = [];
   const pattern = /\*\*(?:Q|В)(\d+):\*\*\s*([\s\S]*?)\n\*\*(?:A|О):\*\*\s*([\s\S]*?)(?=\n\*\*(?:Q|В)\d+:\*\*|$)/g;
@@ -180,11 +180,8 @@ function embedImages(html) {
 }
 
 function pageTemplate({ inline = false } = {}) {
-  const styles = inline ? `<style>${css}</style>` : `<link rel="stylesheet" href="styles.css?v=1.0.1">`;
-  const scripts = inline ? `<script>${js}</script>` : `<script src="script.js?v=1.0.1"></script>`;
-  const coverDeck =
-    "Математически строгий взгляд на физику от первого лица — через квантовую теорию, " +
-    "алгоритмическую вероятность, личную идентичность и гипотезу симуляции.";
+  const styles = inline ? `<style>${css}</style>` : `<link rel="stylesheet" href="styles.css?v=1.1.0">`;
+  const scripts = inline ? `<script>${js}</script>` : `<script src="script.js?v=1.1.0"></script>`;
   return `<!doctype html>
 <html lang="ru" data-theme="dark">
 <head>
@@ -209,28 +206,30 @@ function pageTemplate({ inline = false } = {}) {
       <button class="icon-button" data-open-drawer="left" aria-label="Открыть оглавление">☰</button>
       <a class="brand" href="#top"><span class="brand-mark">Aᵢ</span><span>Алгоритмический идеализм</span></a>
     </div>
-    <div class="appearance" aria-label="Настройки чтения">
-      <label for="theme">Тема</label>
-      <select id="theme"><option value="oled">OLED</option><option value="dark">Тёмная</option><option value="light">Светлая</option><option value="eink">E-INK</option></select>
-      <label for="text-size">Размер</label>
-      <select id="text-size"><option value="17">S</option><option value="19">M</option><option value="21">L</option><option value="23">XL</option></select>
-      <label class="font-control" for="text-font">Шрифт</label>
-      <select class="font-control" id="text-font"><option value="serif">Книжный</option><option value="sans">Гротеск</option><option value="mono">Моно</option></select>
+    <div class="toolbar-actions">
+      <details class="reader-settings">
+        <summary aria-label="Настройки чтения">Aa</summary>
+        <div class="settings-popover" aria-label="Настройки чтения">
+          <div class="settings-heading"><strong>Оформление</strong><span>Подберите удобный вид текста</span></div>
+          <label for="theme"><span>Тема</span><select id="theme"><option value="oled">OLED</option><option value="dark">Тёмная</option><option value="light">Светлая</option><option value="eink">E‑INK</option></select></label>
+          <label for="text-size"><span>Размер</span><select id="text-size"><option value="17">Мелкий</option><option value="19">Средний</option><option value="21">Крупный</option><option value="23">Очень крупный</option></select></label>
+          <label for="text-font"><span>Шрифт</span><select id="text-font"><option value="serif">Книжный</option><option value="sans">Гротеск</option><option value="mono">Моноширинный</option></select></label>
+        </div>
+      </details>
       <button class="icon-button" data-open-drawer="right" aria-label="Открыть вопросы и ответы">?</button>
     </div>
   </header>
   <main id="top">
     <section class="cover">
       <div class="cover-copy">
-        <div class="eyebrow">Философия физики · 2026</div>
         <h1>${escapeHtml(metadata.title)}</h1>
-        <p class="cover-deck">${escapeHtml(coverDeck)}</p>
+        <p class="cover-deck">${escapeHtml(metadata.abstract || "")}</p>
       </div>
       <div class="cover-meta">
         <div class="meta-item"><span>Автор</span><strong>${escapeHtml(metadata.author || "Маркус П. Мюллер")}</strong></div>
         <div class="meta-item"><span>Перевод</span><strong>Сава × GPT‑5.6 Sol</strong></div>
         <div class="meta-item"><span>Время чтения</span><strong id="reading-time">—</strong></div>
-        <div class="meta-item"><span>Оригинал</span><strong><a href="https://mpmueller.net/aid/" rel="noopener">mpmueller.net/aid ↗</a></strong></div>
+        <div class="meta-item"><span>Оригинал</span><strong><a href="https://mpmueller.net/aid/" rel="noopener">mpmueller.net/aid</a></strong></div>
       </div>
     </section>
     <div class="page-grid">
@@ -240,6 +239,10 @@ function pageTemplate({ inline = false } = {}) {
     </div>
   </main>
   <div class="drawer-scrim" aria-hidden="true"></div>
+  <dialog class="footnote-dialog" id="footnote-dialog" aria-labelledby="footnote-dialog-title">
+    <div class="footnote-dialog-head"><strong id="footnote-dialog-title">Сноска</strong><button type="button" data-close-footnote aria-label="Закрыть сноску">×</button></div>
+    <div class="footnote-dialog-body"></div>
+  </dialog>
   <footer class="footer">Независимый русский перевод. Авторские права на оригинальный текст принадлежат Маркусу П. Мюллеру.</footer>
   ${scripts}
 </body>
