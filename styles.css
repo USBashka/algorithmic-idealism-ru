@@ -11,7 +11,7 @@
   --accent-2: #79d9c4;
   --danger: #ff8f7a;
   --shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
-  --article-size: 19px;
+  --article-size: 17px;
   --article-font: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
   --ui-font: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 }
@@ -313,10 +313,10 @@ a {
 .page-grid {
   display: grid;
   gap: clamp(1rem, 2vw, 2rem);
-  grid-template-columns: minmax(14rem, 18rem) minmax(0, 48rem) minmax(14rem, 18rem);
+  grid-template-columns: minmax(12rem, 16rem) minmax(0, 56rem) minmax(12rem, 16rem);
   justify-content: center;
   margin: 0 auto;
-  max-width: 94rem;
+  max-width: 101rem;
   padding: 0 clamp(1rem, 2.2vw, 2.5rem) 8rem;
 }
 
@@ -338,7 +338,7 @@ a {
 .rail-title {
   align-items: center;
   display: flex;
-  font-size: 0.72rem;
+  font-size: 0.66rem;
   font-weight: 800;
   justify-content: space-between;
   letter-spacing: 0.13em;
@@ -355,7 +355,7 @@ a {
   border-left: 2px solid transparent;
   color: var(--muted);
   display: block;
-  font-size: 0.8rem;
+  font-size: 0.74rem;
   line-height: 1.35;
   padding: 0.42rem 0.5rem;
   text-decoration: none;
@@ -378,7 +378,7 @@ a {
   box-shadow: var(--shadow);
   font-family: var(--article-font);
   font-size: var(--article-size);
-  line-height: 1.77;
+  line-height: 1.72;
   min-width: 0;
   padding: clamp(1.4rem, 5vw, 4.5rem);
 }
@@ -391,21 +391,32 @@ a {
   scroll-margin-top: 6rem;
 }
 
+.article a[id] {
+  scroll-margin-top: 6rem;
+}
+
 .article h2 {
   border-top: 1px solid var(--line);
-  font-size: clamp(1.65rem, 3.5vw, 2.65rem);
+  font-size: clamp(1.5rem, 3vw, 2.35rem);
   letter-spacing: -0.035em;
   margin: 4.8rem 0 1.5rem;
   padding-top: 1.3rem;
 }
 
 .article h3 {
-  font-size: 1.35rem;
+  font-size: 1.22rem;
   margin-top: 3rem;
 }
 
 .article p {
   margin: 1.35em 0;
+}
+
+html[data-align="justify"] .article p,
+html[data-align="justify"] .article li {
+  hyphens: auto;
+  text-align: justify;
+  text-justify: inter-word;
 }
 
 .article blockquote {
@@ -482,7 +493,7 @@ a {
 
 .faq-list summary {
   cursor: pointer;
-  font-size: 0.8rem;
+  font-size: 0.74rem;
   font-weight: 680;
   line-height: 1.35;
   padding: 0.75rem 0.85rem;
@@ -492,7 +503,7 @@ a {
   border-top: 1px solid var(--line);
   color: var(--muted);
   font-family: var(--article-font);
-  font-size: 0.86rem;
+  font-size: 0.8rem;
   line-height: 1.55;
   padding: 0.1rem 0.85rem 0.8rem;
 }
@@ -505,7 +516,7 @@ a {
 
 .resources {
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: 0.74rem;
   line-height: 1.5;
   margin-bottom: 0.65rem;
 }
@@ -526,6 +537,51 @@ a {
 
 .resources ul {
   padding-left: 1.25rem;
+}
+
+.rail-right .rail-shell {
+  height: calc(100vh - 6rem);
+  max-height: calc(100vh - 6rem);
+  position: sticky;
+  top: 5rem;
+}
+
+.rail-right .rail-inner {
+  height: 100%;
+  max-height: none;
+  position: static;
+  scrollbar-width: none;
+}
+
+.rail-right .rail-inner::-webkit-scrollbar {
+  display: none;
+}
+
+.overlay-scrollbar {
+  bottom: 0.45rem;
+  pointer-events: none;
+  position: absolute;
+  right: 0.25rem;
+  top: 0.45rem;
+  width: 0.28rem;
+  z-index: 2;
+}
+
+.overlay-scrollbar[hidden] {
+  display: none;
+}
+
+.overlay-scrollbar span {
+  background: color-mix(in srgb, var(--muted) 64%, transparent);
+  border-radius: 999px;
+  display: block;
+  opacity: 0.72;
+  transition: height 120ms ease, transform 60ms linear, opacity 120ms ease;
+  width: 100%;
+}
+
+.rail-right:hover .overlay-scrollbar span {
+  opacity: 1;
 }
 
 .footnote-dialog {
@@ -628,6 +684,12 @@ a {
   }
 
   .rail-inner {
+    max-height: calc(100dvh - 0.8rem);
+    position: static;
+  }
+
+  .rail-right .rail-shell {
+    height: calc(100dvh - 0.8rem);
     max-height: calc(100dvh - 0.8rem);
     position: static;
   }

@@ -5,6 +5,7 @@
   const theme = document.querySelector("#theme");
   const size = document.querySelector("#text-size");
   const font = document.querySelector("#text-font");
+  const alignment = document.querySelector("#line-align");
   const readerSettings = document.querySelector(".reader-settings");
   const progress = document.querySelector(".reading-progress");
   const footnoteDialog = document.querySelector("#footnote-dialog");
@@ -18,11 +19,13 @@
   const saved = JSON.parse(localStorage.getItem("aid-reader") || "{}");
   root.dataset.theme = saved.theme || "dark";
   theme.value = root.dataset.theme;
-  size.value = saved.size || "19";
+  size.value = saved.version === 3 ? (saved.size || "17") : "17";
   font.value = saved.font || "serif";
+  alignment.value = saved.align || "justify";
 
   const applyReader = () => {
     root.style.setProperty("--article-size", `${size.value}px`);
+    root.dataset.align = alignment.value;
     root.style.setProperty(
       "--article-font",
       font.value === "sans"
@@ -33,7 +36,13 @@
     );
     localStorage.setItem(
       "aid-reader",
-      JSON.stringify({ theme: root.dataset.theme, size: size.value, font: font.value }),
+      JSON.stringify({
+        version: 3,
+        theme: root.dataset.theme,
+        size: size.value,
+        font: font.value,
+        align: alignment.value,
+      }),
     );
   };
 
@@ -43,6 +52,7 @@
   });
   size.addEventListener("change", applyReader);
   font.addEventListener("change", applyReader);
+  alignment.addEventListener("change", applyReader);
   applyReader();
 
   document.addEventListener("click", (event) => {
@@ -74,14 +84,52 @@
   );
   sections.forEach((section) => observer.observe(section));
 
+  const rightScroller = document.querySelector(".rail-right .rail-inner");
+  const rightScrollbar = document.querySelector(".overlay-scrollbar");
+  const rightThumb = rightScrollbar?.querySelector("span");
+  const updateRightScrollbar = () => {
+    if (!rightScroller || !rightScrollbar || !rightThumb) return;
+    const trackHeight = rightScrollbar.clientHeight;
+    const maxScroll = rightScroller.scrollHeight - rightScroller.clientHeight;
+    const thumbHeight = Math.max(28, trackHeight * (rightScroller.clientHeight / rightScroller.scrollHeight));
+    const travel = Math.max(0, trackHeight - thumbHeight);
+    const offset = maxScroll > 0 ? (rightScroller.scrollTop / maxScroll) * travel : 0;
+    rightScrollbar.hidden = maxScroll <= 1;
+    rightThumb.style.height = `${thumbHeight}px`;
+    rightThumb.style.transform = `translateY(${offset}px)`;
+  };
+  rightScroller?.addEventListener("scroll", updateRightScrollbar, { passive: true });
+  rightScroller?.querySelectorAll("details").forEach((details) => {
+    details.addEventListener("toggle", () => requestAnimationFrame(updateRightScrollbar));
+  });
+  window.addEventListener("resize", updateRightScrollbar, { passive: true });
+  if ("ResizeObserver" in window && rightScroller) {
+    new ResizeObserver(updateRightScrollbar).observe(rightScroller);
+  }
+  requestAnimationFrame(updateRightScrollbar);
+
   const closeDrawer = () => body.removeAttribute("data-drawer");
   document.querySelectorAll("[data-open-drawer]").forEach((button) => {
     button.addEventListener("click", () => {
       body.dataset.drawer = button.dataset.openDrawer;
+      requestAnimationFrame(updateRightScrollbar);
     });
   });
   document.querySelector(".drawer-scrim").addEventListener("click", closeDrawer);
   tocLinks.forEach((link) => link.addEventListener("click", closeDrawer));
+  document.addEventListener("click", (event) => {
+    const link = event.target.closest('a[href^="#"]');
+    if (!link || !link.hash) return;
+
+    const id = decodeURIComponent(link.hash.slice(1));
+    const target = document.getElementById(id);
+    if (!target) return;
+
+    event.preventDefault();
+    const method = window.location.hash === link.hash ? "replaceState" : "pushState";
+    window.history[method](null, "", link.hash);
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       closeDrawer();

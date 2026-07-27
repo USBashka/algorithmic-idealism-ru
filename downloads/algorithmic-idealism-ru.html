@@ -19,7 +19,7 @@
   --accent-2: #79d9c4;
   --danger: #ff8f7a;
   --shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
-  --article-size: 19px;
+  --article-size: 17px;
   --article-font: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
   --ui-font: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 }
@@ -321,10 +321,10 @@ a {
 .page-grid {
   display: grid;
   gap: clamp(1rem, 2vw, 2rem);
-  grid-template-columns: minmax(14rem, 18rem) minmax(0, 48rem) minmax(14rem, 18rem);
+  grid-template-columns: minmax(12rem, 16rem) minmax(0, 56rem) minmax(12rem, 16rem);
   justify-content: center;
   margin: 0 auto;
-  max-width: 94rem;
+  max-width: 101rem;
   padding: 0 clamp(1rem, 2.2vw, 2.5rem) 8rem;
 }
 
@@ -346,7 +346,7 @@ a {
 .rail-title {
   align-items: center;
   display: flex;
-  font-size: 0.72rem;
+  font-size: 0.66rem;
   font-weight: 800;
   justify-content: space-between;
   letter-spacing: 0.13em;
@@ -363,7 +363,7 @@ a {
   border-left: 2px solid transparent;
   color: var(--muted);
   display: block;
-  font-size: 0.8rem;
+  font-size: 0.74rem;
   line-height: 1.35;
   padding: 0.42rem 0.5rem;
   text-decoration: none;
@@ -386,7 +386,7 @@ a {
   box-shadow: var(--shadow);
   font-family: var(--article-font);
   font-size: var(--article-size);
-  line-height: 1.77;
+  line-height: 1.72;
   min-width: 0;
   padding: clamp(1.4rem, 5vw, 4.5rem);
 }
@@ -399,21 +399,32 @@ a {
   scroll-margin-top: 6rem;
 }
 
+.article a[id] {
+  scroll-margin-top: 6rem;
+}
+
 .article h2 {
   border-top: 1px solid var(--line);
-  font-size: clamp(1.65rem, 3.5vw, 2.65rem);
+  font-size: clamp(1.5rem, 3vw, 2.35rem);
   letter-spacing: -0.035em;
   margin: 4.8rem 0 1.5rem;
   padding-top: 1.3rem;
 }
 
 .article h3 {
-  font-size: 1.35rem;
+  font-size: 1.22rem;
   margin-top: 3rem;
 }
 
 .article p {
   margin: 1.35em 0;
+}
+
+html[data-align="justify"] .article p,
+html[data-align="justify"] .article li {
+  hyphens: auto;
+  text-align: justify;
+  text-justify: inter-word;
 }
 
 .article blockquote {
@@ -490,7 +501,7 @@ a {
 
 .faq-list summary {
   cursor: pointer;
-  font-size: 0.8rem;
+  font-size: 0.74rem;
   font-weight: 680;
   line-height: 1.35;
   padding: 0.75rem 0.85rem;
@@ -500,7 +511,7 @@ a {
   border-top: 1px solid var(--line);
   color: var(--muted);
   font-family: var(--article-font);
-  font-size: 0.86rem;
+  font-size: 0.8rem;
   line-height: 1.55;
   padding: 0.1rem 0.85rem 0.8rem;
 }
@@ -513,7 +524,7 @@ a {
 
 .resources {
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: 0.74rem;
   line-height: 1.5;
   margin-bottom: 0.65rem;
 }
@@ -534,6 +545,51 @@ a {
 
 .resources ul {
   padding-left: 1.25rem;
+}
+
+.rail-right .rail-shell {
+  height: calc(100vh - 6rem);
+  max-height: calc(100vh - 6rem);
+  position: sticky;
+  top: 5rem;
+}
+
+.rail-right .rail-inner {
+  height: 100%;
+  max-height: none;
+  position: static;
+  scrollbar-width: none;
+}
+
+.rail-right .rail-inner::-webkit-scrollbar {
+  display: none;
+}
+
+.overlay-scrollbar {
+  bottom: 0.45rem;
+  pointer-events: none;
+  position: absolute;
+  right: 0.25rem;
+  top: 0.45rem;
+  width: 0.28rem;
+  z-index: 2;
+}
+
+.overlay-scrollbar[hidden] {
+  display: none;
+}
+
+.overlay-scrollbar span {
+  background: color-mix(in srgb, var(--muted) 64%, transparent);
+  border-radius: 999px;
+  display: block;
+  opacity: 0.72;
+  transition: height 120ms ease, transform 60ms linear, opacity 120ms ease;
+  width: 100%;
+}
+
+.rail-right:hover .overlay-scrollbar span {
+  opacity: 1;
 }
 
 .footnote-dialog {
@@ -636,6 +692,12 @@ a {
   }
 
   .rail-inner {
+    max-height: calc(100dvh - 0.8rem);
+    position: static;
+  }
+
+  .rail-right .rail-shell {
+    height: calc(100dvh - 0.8rem);
     max-height: calc(100dvh - 0.8rem);
     position: static;
   }
@@ -773,8 +835,9 @@ a {
         <div class="settings-popover" aria-label="Настройки чтения">
           <div class="settings-heading"><strong>Оформление</strong><span>Подберите удобный вид текста</span></div>
           <label for="theme"><span>Тема</span><select id="theme"><option value="oled">OLED</option><option value="dark">Тёмная</option><option value="light">Светлая</option><option value="eink">E‑INK</option></select></label>
-          <label for="text-size"><span>Размер</span><select id="text-size"><option value="17">Мелкий</option><option value="19">Средний</option><option value="21">Крупный</option><option value="23">Очень крупный</option></select></label>
+          <label for="text-size"><span>Размер</span><select id="text-size"><option value="15">Мелкий</option><option value="17">Средний</option><option value="19">Крупный</option><option value="21">Очень крупный</option></select></label>
           <label for="text-font"><span>Шрифт</span><select id="text-font"><option value="serif">Книжный</option><option value="sans">Гротеск</option><option value="mono">Моноширинный</option></select></label>
+          <label for="line-align"><span>Строки</span><select id="line-align"><option value="justify">По ширине</option><option value="left">По левому краю</option></select></label>
         </div>
       </details>
       <button class="icon-button" data-open-drawer="right" aria-label="Открыть вопросы и ответы">?</button>
@@ -794,7 +857,7 @@ a {
       </div>
     </section>
     <div class="page-grid">
-      <aside class="rail rail-left" aria-label="Оглавление"><div class="rail-inner"><h2 class="rail-title">Оглавление <span>14</span></h2><nav class="toc"><a data-level="2" href="#Section1">1. Пролог: когда одного мира недостаточно</a><a data-level="2" href="#Section2">2. Квантовые вероятности как объективные степени эпистемического обоснования</a><a data-level="2" href="#Section3">3. Ограничение A: физика не всегда говорит агентам, во что им следует верить</a><a data-level="2" href="#Section4">4. Алгоритмический идеализм в двух словах</a><a data-level="2" href="#Section5">5. Алгоритмическая теория информации и битовая модель</a><a data-level="2" href="#Section6">6. Предсказания алгоритмического идеализма</a><a data-level="2" href="#Subsection6.1">6.1. Согласованность с физическими предсказаниями в стандартных сценариях</a><a data-level="2" href="#Subsection6.2">6.2. Внешний мир как эмерджентное приближённое явление</a><a data-level="2" href="#Subsection6.3">6.3. Более одного наблюдателя: эмерджентная объективная реальность…</a><a data-level="2" href="#Subsection6.4">6.4. …и её ограничения: вероятностные подменыши и больцмановские мозги</a><a data-level="2" href="#Section7">7. Пример: как следует рассуждать о гипотезе симуляции</a><a data-level="2" href="#Section8">8. Выводы</a><a data-level="2" href="#Acknowledgments">Благодарности</a><a data-level="2" href="#References">Литература</a></nav></div></aside>
+      <aside class="rail rail-left" aria-label="Оглавление"><div class="rail-inner"><h2 class="rail-title">Оглавление</h2><nav class="toc"><a data-level="2" href="#Section1">1. Пролог: когда одного мира недостаточно</a><a data-level="2" href="#Section2">2. Квантовые вероятности как объективные степени эпистемического обоснования</a><a data-level="2" href="#Section3">3. Ограничение A: физика не всегда говорит агентам, во что им следует верить</a><a data-level="2" href="#Section4">4. Алгоритмический идеализм в двух словах</a><a data-level="2" href="#Section5">5. Алгоритмическая теория информации и битовая модель</a><a data-level="2" href="#Section6">6. Предсказания алгоритмического идеализма</a><a data-level="2" href="#Subsection6.1">6.1. Согласованность с физическими предсказаниями в стандартных сценариях</a><a data-level="2" href="#Subsection6.2">6.2. Внешний мир как эмерджентное приближённое явление</a><a data-level="2" href="#Subsection6.3">6.3. Более одного наблюдателя: эмерджентная объективная реальность…</a><a data-level="2" href="#Subsection6.4">6.4. …и её ограничения: вероятностные подменыши и больцмановские мозги</a><a data-level="2" href="#Section7">7. Пример: как следует рассуждать о гипотезе симуляции</a><a data-level="2" href="#Section8">8. Выводы</a><a data-level="2" href="#Acknowledgments">Благодарности</a><a data-level="2" href="#References">Литература</a></nav></div></aside>
       <article class="article"><h2 id="Section1">1. Пролог: когда одного мира недостаточно</h2>
 
 <p>Идёт 2048 год. Вы больше не чувствуете рук и ног, но грезите о тёплом осеннем солнце, пробивающемся сквозь разноцветную листву. Вдали поёт дрозд, дочь улыбается вам; клетчатый плед лежит в тени деревьев. Лишь мерцание потолочной лампы и мигание медицинских мониторов возвращают вас к реальности — и то ненадолго, пока тёплая волна обезболивающего снова не размоет восприятие.</p>
@@ -858,12 +921,14 @@ $$</p>
 <hr>
 <p>Второй шаг — отказаться от всех человекоцентричных аспектов и перейти к полностью абстрактному подходу. Состоянием «я» может быть <em>любой</em> паттерн из некоторого математически и абстрактно определённого множества всех возможных паттернов. Лишь ничтожная их часть заслуживала бы интерпретации как описание мгновенного состояния «наблюдателя» — тем более человека или сознательного наблюдателя. На искомом фундаментальном уровне вводить конкретную модель наблюдателя или делать определённые предположения о его составе и функциях было бы совершенно неуместно. Самый осторожный и последовательный подход должен быть максимально абстрактным: всё, что мы привыкли связывать с наблюдателями или агентами, временно рассматривается как контингентное.</p>
 <p>Так мы приходим к первому постулату алгоритмического идеализма:</p>
+<p><a id="Postulate1"></a></p>
 <blockquote>
 <p><strong>Постулат 1</strong> (состояния «я»). <em>Существует множество $\mathcal{S}$ «состояний „я“» — совокупность паттернов, одним из которых можно быть в каждый субъективный момент. Всё, что можно сказать о данном агенте в этот момент, включая все выводы о его прошлом или будущем, определяется его состоянием «я».</em></p>
 </blockquote>
 <p>В частности — и, возможно, это наиболее контринтуитивный тезис, — алгоритмический идеализм <em>отрицает, что агенты фундаментально встроены в некоторый внешний мир</em>. В каждый момент агент <em>полностью</em> характеризуется своим состоянием «я», то есть автономным паттерном, а <em>не</em> пространственно-временным положением внутри внешнего мира. Например, в проблеме больцмановского мозга существует множество локально неразличимых копий агента. Алгоритмический идеализм отвергает привычную интуицию «самолокализующейся неопределённости», будто агент <em>в действительности</em> является одной из копий, но не знает какой. Агент в данный субъективный момент и есть его состояние «я»; этот абстрактный паттерн просто представлен или реализован в каждой копии. В некотором смысле агент должен мыслить себя как <em>класс эквивалентности</em> всех этих реализаций — обычных и больцмановских мозгов, а также любых иных, потенциально совершенно непохожих воплощений.</p>
 <p>На первый взгляд это абсурдно. Разве вскоре агент не совершит наблюдение, которое подтвердит либо опровергнет опасение, что он — больцмановский мозг, и тем самым ретроспективно не установит, что он <em>в действительности был</em> копией на планете, а не случайной флуктуацией где-то в космосе? При более внимательном рассмотрении кажущееся противоречие снимают два соображения. Во-первых, алгоритмический идеализм специально построен так, чтобы обходить «стандартную методологию» из <a href="#Section3">раздела 3</a> и позволять агентам предсказывать следующее наблюдение, <em>не основываясь</em> на ожидаемом состоянии мира, в который они встроены. Поэтому то, чего им следует ожидать, по построению <em>не может</em> зависеть от того, «в действительности» окружены они планетоподобной средой или высокоэнтропийным излучением. Во-вторых, как будет объяснено в <a href="#Section6">разделе 6</a>, алгоритмический идеализм предсказывает, что агенты часто вправе считать себя «эффективно встроенными»: происходящее будет с превосходной точностью выглядеть <em>так, словно</em> они являются частью внешнего мира с алгоритмически простыми вероятностными законами природы. В космологическом примере отсюда следует, что следующим опытом агента, вероятнее всего, станет «обычная жизнь на планете», независимо от числа больцмановских мозгов, хотя вопрос о том, <em>является ли он на самом деле</em> больцмановским мозгом, поставлен некорректно. Подробнее это обсуждается ниже, в <a href="#Section6">разделе 6</a>.</p>
 <p>Отказавшись от стандартной методологии, мы нуждаемся в постулате, определяющем, какого следующего опыта агенту<sup id="fnref-51"><button class="footnote-ref" type="button" data-footnote="51" aria-label="Открыть сноску 51">51</button></sup> следует ожидать. Поскольку мы не основываем ответ на внешнем мире в обычном смысле, он может зависеть лишь от мгновенного состояния «я» агента. А раз алгоритмический идеализм обходится без расплывчатых слов вроде «убеждение» и «опыт», исходный вопрос следует заменить другим: <em>если сейчас агент находится в состоянии «я» $x$, в каком состоянии $y$ он, вероятно, окажется затем?</em> Обосновать ответ привычными законами физики по построению нельзя. Вместо этого алгоритмический идеализм опирается на более слабое предположение, лежащее в основе самого доверия к эмпирической науке: <em>индукция возможна</em>. Точнее, эта идея воплощается в следующем постулате:</p>
+<p><a id="Postulate2"></a></p>
 <blockquote>
 <p><strong>Постулат 2</strong> (изменение состояния). <em>Если сейчас вы находитесь в состоянии «я» $x$, следующим будет другое состояние $y$, а то, какое именно, проявляется для вас как случайный эксперимент. Правдоподобие каждого следующего $y$ при данном текущем $x$ имеет объективное значение: если бы вы знали своё текущее состояние «я», оно выражало бы то, чего вам следует ожидать дальше. Математическая структура, задающая это значение, формализует универсальный метод индукции $M$.</em></p>
 </blockquote>
@@ -1223,7 +1288,7 @@ $$</p>
  <a class="footnote-backref" href="#fnref-112" aria-label="Назад">↩</a></li><li id="fn-113"><p>K. Zuse, <em>Rechnender Raum</em>, Friedrich Vieweg u. Sohn, Wiesbaden, 1969.</p>
  <a class="footnote-backref" href="#fnref-113" aria-label="Назад">↩</a></li><li id="fn-114"><p>D. Deutsch, <em><a href="https://doi.org/10.1098/rspa.1985.0070">Quantum theory, the Church-Turing principle and the universal quantum computer</a></em>, Proc. R. Soc. (London) A <strong>400</strong>, 97–117 (1985).</p>
  <a class="footnote-backref" href="#fnref-114" aria-label="Назад">↩</a></li></ol></section></article>
-      <aside class="rail rail-right" aria-label="Дополнительные материалы"><div class="rail-inner"><h2 class="rail-title">Вопросы и ответы <span>22</span></h2><details class="resources"><summary>Материалы и ссылки</summary><div><ul>
+      <aside class="rail rail-right" aria-label="Дополнительные материалы"><div class="rail-shell"><div class="rail-inner"><h2 class="rail-title">Вопросы и ответы</h2><details class="resources"><summary>Материалы и ссылки</summary><div><ul>
 <li>Более ранняя техническая статья со всеми доказательствами: <a href="https://doi.org/10.22331/q-2020-07-20-301">M. P. Müller, Quantum <strong>4</strong>, 301 (2020)</a>, а также несколько устаревшая к 2021 году <a href="https://www.youtube.com/watch?v=Tm3h_6UU2jY">видеозапись доклада</a>.</li>
 <li>Недавняя статья, мотивирующая алгоритмический идеализм через «ограничение A», возникающее в сценариях друга Вигнера, дублирования и других: <a href="https://doi.org/10.22331/q-2026-06-30-2147">C. L. Jones и M. P. Müller, Quantum <strong>10</strong>, 2147 (2026)</a>, а также <a href="https://mpmueller.net/wp-content/uploads/2025/12/London2025.pdf">слайды</a> доклада в Лондонском университете, 2025 год.</li>
 </ul>
@@ -1261,7 +1326,7 @@ $$</p>
 <p>В битовой модели состояние «я» фундаментально определяется условной алгоритмической вероятностью. Но <em>именно вследствие этого</em> его долгосрочная эволюция часто выглядит <em>так, словно</em> оно встроено во внешний мир $W$, включая мозг, который можно считать механической причиной этой эволюции. Это выражает результат об обратной индукции Соломонова.</p>
 <p>Итак, алгоритмический идеализм не отрицает, что <strong>состояние «я» в некотором смысле супервентно на мозге</strong>. Он предлагает более глубокое объяснение, почему это так, и предполагает, что супервентность выполняется при определённых условиях. В нашей жизни они соблюдаются почти всегда, но не во всех экзотических ситуациях — дублировании, компьютерной симуляции или смерти.</p>
 <p>Новые вопросы будут время от времени добавляться.</p>
-</div></details></div></div></aside>
+</div></details></div></div><div class="overlay-scrollbar" aria-hidden="true"><span></span></div></div></aside>
     </div>
   </main>
   <div class="drawer-scrim" aria-hidden="true"></div>
@@ -1277,6 +1342,7 @@ $$</p>
   const theme = document.querySelector("#theme");
   const size = document.querySelector("#text-size");
   const font = document.querySelector("#text-font");
+  const alignment = document.querySelector("#line-align");
   const readerSettings = document.querySelector(".reader-settings");
   const progress = document.querySelector(".reading-progress");
   const footnoteDialog = document.querySelector("#footnote-dialog");
@@ -1290,11 +1356,13 @@ $$</p>
   const saved = JSON.parse(localStorage.getItem("aid-reader") || "{}");
   root.dataset.theme = saved.theme || "dark";
   theme.value = root.dataset.theme;
-  size.value = saved.size || "19";
+  size.value = saved.version === 3 ? (saved.size || "17") : "17";
   font.value = saved.font || "serif";
+  alignment.value = saved.align || "justify";
 
   const applyReader = () => {
     root.style.setProperty("--article-size", `${size.value}px`);
+    root.dataset.align = alignment.value;
     root.style.setProperty(
       "--article-font",
       font.value === "sans"
@@ -1305,7 +1373,13 @@ $$</p>
     );
     localStorage.setItem(
       "aid-reader",
-      JSON.stringify({ theme: root.dataset.theme, size: size.value, font: font.value }),
+      JSON.stringify({
+        version: 3,
+        theme: root.dataset.theme,
+        size: size.value,
+        font: font.value,
+        align: alignment.value,
+      }),
     );
   };
 
@@ -1315,6 +1389,7 @@ $$</p>
   });
   size.addEventListener("change", applyReader);
   font.addEventListener("change", applyReader);
+  alignment.addEventListener("change", applyReader);
   applyReader();
 
   document.addEventListener("click", (event) => {
@@ -1346,14 +1421,52 @@ $$</p>
   );
   sections.forEach((section) => observer.observe(section));
 
+  const rightScroller = document.querySelector(".rail-right .rail-inner");
+  const rightScrollbar = document.querySelector(".overlay-scrollbar");
+  const rightThumb = rightScrollbar?.querySelector("span");
+  const updateRightScrollbar = () => {
+    if (!rightScroller || !rightScrollbar || !rightThumb) return;
+    const trackHeight = rightScrollbar.clientHeight;
+    const maxScroll = rightScroller.scrollHeight - rightScroller.clientHeight;
+    const thumbHeight = Math.max(28, trackHeight * (rightScroller.clientHeight / rightScroller.scrollHeight));
+    const travel = Math.max(0, trackHeight - thumbHeight);
+    const offset = maxScroll > 0 ? (rightScroller.scrollTop / maxScroll) * travel : 0;
+    rightScrollbar.hidden = maxScroll <= 1;
+    rightThumb.style.height = `${thumbHeight}px`;
+    rightThumb.style.transform = `translateY(${offset}px)`;
+  };
+  rightScroller?.addEventListener("scroll", updateRightScrollbar, { passive: true });
+  rightScroller?.querySelectorAll("details").forEach((details) => {
+    details.addEventListener("toggle", () => requestAnimationFrame(updateRightScrollbar));
+  });
+  window.addEventListener("resize", updateRightScrollbar, { passive: true });
+  if ("ResizeObserver" in window && rightScroller) {
+    new ResizeObserver(updateRightScrollbar).observe(rightScroller);
+  }
+  requestAnimationFrame(updateRightScrollbar);
+
   const closeDrawer = () => body.removeAttribute("data-drawer");
   document.querySelectorAll("[data-open-drawer]").forEach((button) => {
     button.addEventListener("click", () => {
       body.dataset.drawer = button.dataset.openDrawer;
+      requestAnimationFrame(updateRightScrollbar);
     });
   });
   document.querySelector(".drawer-scrim").addEventListener("click", closeDrawer);
   tocLinks.forEach((link) => link.addEventListener("click", closeDrawer));
+  document.addEventListener("click", (event) => {
+    const link = event.target.closest('a[href^="#"]');
+    if (!link || !link.hash) return;
+
+    const id = decodeURIComponent(link.hash.slice(1));
+    const target = document.getElementById(id);
+    if (!target) return;
+
+    event.preventDefault();
+    const method = window.location.hash === link.hash ? "replaceState" : "pushState";
+    window.history[method](null, "", link.hash);
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       closeDrawer();

@@ -72,10 +72,18 @@ function prepareHeadings(markdown) {
   let pendingAnchor = null;
   const lines = markdown.split("\n");
   const rendered = [];
-  for (const line of lines) {
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
     const anchor = line.match(/^<a id="([^"]+)"><\/a>$/);
     if (anchor) {
-      pendingAnchor = anchor[1];
+      let next = index + 1;
+      while (next < lines.length && lines[next].trim() === "") next += 1;
+      if (/^#{2,3}\s+/.test(lines[next] || "")) {
+        pendingAnchor = anchor[1];
+      } else {
+        rendered.push(line);
+        pendingAnchor = null;
+      }
       continue;
     }
     const heading = line.match(/^(#{2,3})\s+(.+)$/);
@@ -180,8 +188,8 @@ function embedImages(html) {
 }
 
 function pageTemplate({ inline = false } = {}) {
-  const styles = inline ? `<style>${css}</style>` : `<link rel="stylesheet" href="styles.css?v=1.1.1">`;
-  const scripts = inline ? `<script>${js}</script>` : `<script src="script.js?v=1.1.1"></script>`;
+  const styles = inline ? `<style>${css}</style>` : `<link rel="stylesheet" href="styles.css?v=1.2.1">`;
+  const scripts = inline ? `<script>${js}</script>` : `<script src="script.js?v=1.2.1"></script>`;
   return `<!doctype html>
 <html lang="ru" data-theme="dark">
 <head>
@@ -212,8 +220,9 @@ function pageTemplate({ inline = false } = {}) {
         <div class="settings-popover" aria-label="Настройки чтения">
           <div class="settings-heading"><strong>Оформление</strong><span>Подберите удобный вид текста</span></div>
           <label for="theme"><span>Тема</span><select id="theme"><option value="oled">OLED</option><option value="dark">Тёмная</option><option value="light">Светлая</option><option value="eink">E‑INK</option></select></label>
-          <label for="text-size"><span>Размер</span><select id="text-size"><option value="17">Мелкий</option><option value="19">Средний</option><option value="21">Крупный</option><option value="23">Очень крупный</option></select></label>
+          <label for="text-size"><span>Размер</span><select id="text-size"><option value="15">Мелкий</option><option value="17">Средний</option><option value="19">Крупный</option><option value="21">Очень крупный</option></select></label>
           <label for="text-font"><span>Шрифт</span><select id="text-font"><option value="serif">Книжный</option><option value="sans">Гротеск</option><option value="mono">Моноширинный</option></select></label>
+          <label for="line-align"><span>Строки</span><select id="line-align"><option value="justify">По ширине</option><option value="left">По левому краю</option></select></label>
         </div>
       </details>
       <button class="icon-button" data-open-drawer="right" aria-label="Открыть вопросы и ответы">?</button>
@@ -233,9 +242,9 @@ function pageTemplate({ inline = false } = {}) {
       </div>
     </section>
     <div class="page-grid">
-      <aside class="rail rail-left" aria-label="Оглавление"><div class="rail-inner"><h2 class="rail-title">Оглавление <span>${main.headings.length}</span></h2><nav class="toc">${renderToc(main.headings)}</nav></div></aside>
+      <aside class="rail rail-left" aria-label="Оглавление"><div class="rail-inner"><h2 class="rail-title">Оглавление</h2><nav class="toc">${renderToc(main.headings)}</nav></div></aside>
       <article class="article">${main.html}</article>
-      <aside class="rail rail-right" aria-label="Дополнительные материалы"><div class="rail-inner"><h2 class="rail-title">Вопросы и ответы <span>${sidebar.count}</span></h2>${sidebar.resources}<div class="faq-list">${sidebar.faq}</div></div></aside>
+      <aside class="rail rail-right" aria-label="Дополнительные материалы"><div class="rail-shell"><div class="rail-inner"><h2 class="rail-title">Вопросы и ответы</h2>${sidebar.resources}<div class="faq-list">${sidebar.faq}</div></div><div class="overlay-scrollbar" aria-hidden="true"><span></span></div></div></aside>
     </div>
   </main>
   <div class="drawer-scrim" aria-hidden="true"></div>
