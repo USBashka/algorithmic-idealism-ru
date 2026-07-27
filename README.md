@@ -9,7 +9,9 @@
 
 [Читать оригинал](https://mpmueller.net/aid/) ·
 [DOI](https://doi.org/10.1007/s10701-026-00913-1) ·
-[arXiv](https://arxiv.org/abs/2412.02826)
+[arXiv](https://arxiv.org/abs/2412.02826)  
+[Читать русский перевод](https://usbashka.github.io/algorithmic-idealism-ru/) ·
+[Скачать EPUB и HTML](https://github.com/USBashka/algorithmic-idealism-ru/releases/latest)
 
 </div>
 
@@ -56,4 +58,3 @@ python -m http.server 4178
 Автор статьи — **Markus P. Müller**. Каноническая версия опубликована в *Foundations of Physics 56, 11 (2026)*. Этот репозиторий не является официальной публикацией автора; перевод подготовлен для русскоязычного чтения и сохраняет ссылки на оригинальные научные источники.
 
 При цитировании научной работы используйте [оригинальную публикацию](https://doi.org/10.1007/s10701-026-00913-1).
-
