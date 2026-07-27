@@ -11,6 +11,7 @@ from pathlib import Path
 from xml.sax.saxutils import escape
 
 from lxml import etree, html
+from latex2mathml.converter import convert as latex_to_mathml
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -19,6 +20,48 @@ OUTPUT = ROOT / "downloads" / "algorithmic-idealism-ru.epub"
 BUILD = ROOT / ".epub-build"
 NS = "http://www.w3.org/1999/xhtml"
 EPUB_NS = "http://www.idpf.org/2007/ops"
+MATHML_NS = "http://www.w3.org/1998/Math/MathML"
+MATH_RE = re.compile(r"\$\$(.+?)\$\$|\$([^$\n]+?)\$", re.DOTALL)
+
+
+def normalize_latex(value: str) -> str:
+    """Remove cross-reference commands unsupported by most EPUB renderers."""
+    value = re.sub(r"\\label\{[^}]+\}", "", value)
+    value = value.replace(r"\eqref{eq1}", "(1)").replace(r"\eqref{eq2}", "(2)")
+    return value.strip()
+
+
+def replace_math_slot(parent: etree._Element, previous: etree._Element | None, value: str | None) -> None:
+    if not value:
+        return
+    matches = list(MATH_RE.finditer(value))
+    if not matches:
+        return
+
+    if previous is None:
+        parent.text = value[: matches[0].start()]
+        insert_at = 0
+    else:
+        previous.tail = value[: matches[0].start()]
+        insert_at = parent.index(previous) + 1
+
+    for index, match in enumerate(matches):
+        latex = normalize_latex(match.group(1) or match.group(2))
+        display = "block" if match.group(1) is not None else "inline"
+        math = etree.fromstring(latex_to_mathml(latex, xmlns=MATHML_NS, display=display).encode("utf-8"))
+        parent.insert(insert_at, math)
+        insert_at += 1
+        end = matches[index + 1].start() if index + 1 < len(matches) else len(value)
+        math.tail = value[match.end() : end]
+
+
+def convert_math(element: etree._Element) -> None:
+    """Replace TeX delimiters in text nodes with EPUB-compatible MathML."""
+    original_children = list(element)
+    replace_math_slot(element, None, element.text)
+    for child in original_children:
+        convert_math(child)
+        replace_math_slot(element, child, child.tail)
 
 
 def xhtml_document(title: str, body_nodes: list[etree._Element]) -> bytes:
@@ -60,6 +103,12 @@ def main() -> None:
     article = document.xpath('//article[contains(@class,"article")]')[0]
     cover = document.xpath('//section[contains(@class,"cover")]')[0]
     title = "".join(document.xpath("//title/text()"))
+    reading_copy = etree.fromstring(etree.tostring(article))
+    for footnotes in reading_copy.xpath(
+        './/section[contains(concat(" ", normalize-space(@class), " "), " footnotes ")]'
+    ):
+        footnotes.getparent().remove(footnotes)
+    reading_minutes = max(1, round(len("".join(reading_copy.itertext()).split()) / 190))
 
     for element in article.xpath(".//*[@style]"):
         element.attrib.pop("style", None)
@@ -77,8 +126,14 @@ def main() -> None:
         button.getparent().replace(button, link)
     for footnote in article.xpath('.//section[contains(concat(" ", normalize-space(@class), " "), " footnotes ")]//li'):
         footnote.set(f"{{{EPUB_NS}}}type", "footnote")
+    convert_math(article)
 
-    cover_nodes = [etree.fromstring(etree.tostring(cover))]
+    cover_copy = etree.fromstring(etree.tostring(cover))
+    reading_time = cover_copy.xpath('.//*[@id="reading-time"]')
+    if reading_time:
+        reading_time[0].text = f"{reading_minutes} мин"
+        reading_time[0].attrib.pop("id", None)
+    cover_nodes = [cover_copy]
     article_nodes = [etree.fromstring(etree.tostring(child)) for child in article]
     (oebps / "cover.xhtml").write_bytes(xhtml_document(title, cover_nodes))
     (oebps / "article.xhtml").write_bytes(xhtml_document(title, article_nodes))
@@ -91,7 +146,12 @@ img{display:block;max-width:100%;height:auto;margin:1.5em auto}
 blockquote{border-left:.25em solid #657a38;padding-left:1em}
 table{border-collapse:collapse;max-width:100%;font-size:.85em}
 td,th{border:1px solid #888;padding:.4em}
-.cover-meta{margin-top:2em}.meta-item{margin:.7em 0}.meta-item span{font-weight:bold}
+.cover-meta{margin-top:2em}.meta-item{margin:1em 0}
+.meta-item span,.meta-item strong{display:block}
+.meta-item span{font-family:sans-serif;font-size:.75em;font-weight:normal;letter-spacing:.08em;margin-bottom:.2em;text-transform:uppercase}
+.meta-item strong{font-family:sans-serif}
+math{font-size:1em}
+math[display="block"]{display:block;margin:1.4em auto;max-width:100%;overflow-x:auto;text-align:center}
 .eyebrow{letter-spacing:.1em;text-transform:uppercase}.footnotes{font-size:.85em}
 """
     (oebps / "styles.css").write_text(epub_css, encoding="utf-8")
@@ -131,7 +191,7 @@ td,th{border:1px solid #888;padding:.4em}
   <manifest>
     <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
     <item id="cover" href="cover.xhtml" media-type="application/xhtml+xml"/>
-    <item id="article" href="article.xhtml" media-type="application/xhtml+xml"/>
+    <item id="article" href="article.xhtml" media-type="application/xhtml+xml" properties="mathml"/>
     <item id="css" href="styles.css" media-type="text/css"/>
     {image_manifest}
   </manifest>

@@ -1,0 +1,2 @@
+latex2mathml==3.81.0
+lxml>=6.0,<7
