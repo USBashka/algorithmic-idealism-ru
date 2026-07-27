@@ -664,7 +664,7 @@ a {
   }
 
   .cover h1 {
-    font-size: clamp(2.15rem, 9.8vw, 2.6rem);
+    font-size: clamp(2.05rem, 8.8vw, 2.4rem);
     hyphens: none;
     letter-spacing: -0.035em;
     line-height: 1.02;

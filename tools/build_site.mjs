@@ -180,8 +180,8 @@ function embedImages(html) {
 }
 
 function pageTemplate({ inline = false } = {}) {
-  const styles = inline ? `<style>${css}</style>` : `<link rel="stylesheet" href="styles.css?v=1.1.0">`;
-  const scripts = inline ? `<script>${js}</script>` : `<script src="script.js?v=1.1.0"></script>`;
+  const styles = inline ? `<style>${css}</style>` : `<link rel="stylesheet" href="styles.css?v=1.1.1">`;
+  const scripts = inline ? `<script>${js}</script>` : `<script src="script.js?v=1.1.1"></script>`;
   return `<!doctype html>
 <html lang="ru" data-theme="dark">
 <head>
